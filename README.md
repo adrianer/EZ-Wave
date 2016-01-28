@@ -4,10 +4,11 @@ EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defi
 ezstumbler: passive Z-Wave network discovery and active network enumeration
 
 ezrecon: Z-Wave device interrogation including:
-	- Manufacturer and device name
-	- Software/firmware versions
-	- Supported Z-Wave command classes
-	- Device configuration settings
+
+* Manufacturer and device name
+* Software/firmware versions
+* Supported Z-Wave command classes
+* Device configuration settings
 
 ezfingerprint: determines device's Z-Wave module generation (3rd or 5th gen) using a PHY layer manipulation technique (preamble length manipulation).
 
@@ -68,11 +69,11 @@ sudo ldconfig
 
 ##ezstumbler
 
-ezstumbler.py [-h, --help] [-p, --passive] [-t, --timeout] [-a, --active] [--homeid]
-	-p, --passive		Conduct a passive scan for a set time (secs)
-	-t, --timeout		Timeout (secs) for scans, default=60
-	-a, --active		Conduct an active scan for a set time (secs)
-	--homeid		4 byte HomeID to scan (ex: 0x1a2b3c4d)
+ezstumbler.py [-h, --help] [-p, --passive] [-t, --timeout] [-a, --active] [--homeid]  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-p, --passive&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Conduct a passive scan for a set time (secs)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-t, --timeout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Timeout (secs) for scans, default=60  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-a, --active&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Conduct an active scan for a set time (secs)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--homeid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4 byte HomeID to scan (ex: 0x1a2b3c4d)  
 
 30s passive followed by active scan:
 ```
@@ -91,11 +92,11 @@ ezstumbler.py --active --homeid=0x1a2b3d4e
 
 ##ezrecon
 
-ezrecon.py [-h, --help] [-c, --config] [-t, --timeout] homeid nodeid
-	homeid			4 byte HomeID of target network (ex: 0x1a2b3c4d)
-	nodeid			Target device NodeID (in decimal, <233)
-	-c, --config		Include scan of device configuration settings (takes a while)
-	-t, --timeout		Stop scanning after a given time (secs, default=30)
+ezrecon.py [-h, --help] [-c, --config] [-t, --timeout] homeid nodeid  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;homeid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4 byte HomeID of target network (ex: 0x1a2b3c4d)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nodeid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Target device NodeID (in decimal, <233)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-c, --config&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Include scan of device configuration settings (takes a while)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-t, --timeout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stop scanning after a given time (secs, default=30)  
 
 ```
 ezrecon.py 0x1a2b3c4d 20
@@ -103,9 +104,9 @@ ezrecon.py 0x1a2b3c4d 20
 
 ##ezfingerprint
 
-ezfingerprint.py homeid nodeid
-	homeid			4 byte HomeID of target network (ex: 0x1a2b3c4d)
-	nodeid			Target device NodeID (in decimal, <233)
+ezfingerprint.py homeid nodeid  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;homeid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4 byte HomeID of target network (ex: 0x1a2b3c4d)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nodeid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Target device NodeID (in decimal, <233)  
 
 ```
 ezfingerprint.py 0x1a2b3c4d 20
