@@ -110,7 +110,6 @@ class ZWaveNode(object):
 
     def display(self, verbose=False):
         if verbose:
-            self.fix()
             print "NodeID " + str(self.nodeid) + ":"
             print self.parse_manspec()
             print self.parse_version()
