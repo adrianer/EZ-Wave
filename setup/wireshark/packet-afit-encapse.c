@@ -1,22 +1,3 @@
-/* Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-
 #include "config.h"
 #include <epan/packet.h>
 
@@ -25,9 +6,8 @@
 static gint ett_afit_encap = -1;
 static gint proto_afit_encap = -1;
 static gint hf_afit_encap_type_ext = -1;
-static gint hf_afit_zwave_channel_type = -1;
-static gint hf_afit_zwave_preamble_count = -1;
-static gint hf_afit_zwave_symbol_count = -1;
+//static gint hf_sfd_timestamp_sec = -1;
+//static gint hf_sfd_timestamp_usec = -1;
 
 static dissector_handle_t data_handle;
 
@@ -39,15 +19,8 @@ static const value_string afit_encap_packet_type_names[] = {
 	{	0x3, "AFIT Sniffer Zwave" }
 };  
 
-static const value_string afit_zwave_channel_type_names[] = {
-	{	0x1, "Zwave Channel Config 1, Rate 2" },
-	{	0x2, "Zwave Channel Config 2, Rate 1" },
-	{	0x3, "Zwave Channel Config 2, Rate 2" },
-	{	0x4, "Zwave Channel Config 2, Rate 3" },
-	{   0x5, "Zwave Channel Config 3, Rate 3" }
-};
-
-static int dissect_afit_encap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static void
+dissect_afit_encap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	int type = tvb_get_guint8 (tvb, 0);
@@ -66,22 +39,16 @@ static int dissect_afit_encap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		
 		afit_encap_tree = proto_item_add_subtree (ti, ett_afit_encap);
 		proto_tree_add_item (afit_encap_tree, hf_afit_encap_type_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-		if (type == 0x3)
-		{
-			offset++;
-			proto_tree_add_item (afit_encap_tree, hf_afit_zwave_channel_type, tvb, offset,1, ENC_BIG_ENDIAN);
-			offset++;
-			proto_tree_add_item (afit_encap_tree, hf_afit_zwave_preamble_count, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-			proto_tree_add_item (afit_encap_tree, hf_afit_zwave_symbol_count, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset +=5; // Add 32bit int + 1 byte of padding
-		}
-		else
-		{
-			offset += 8; // The remaining bytes of this header are unused.
-		}
-
+		offset += 8;		
+		//offset++;
+		
+		// These values are set by the host system and not converted to network order before packet over localhost
+		//proto_tree_add_item (afit_encap_tree, hf_sfd_timestamp_sec, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		//offset += 8;
+		
+		//proto_tree_add_item (afit_encap_tree, hf_sfd_timestamp_usec, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		//offset += 8;
+		
 		next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb,offset), tvb_reported_length(tvb));
 		
 		if (!dissector_try_uint(afit_encap_dissector_table, type, next_tvb, pinfo, tree))
@@ -90,7 +57,7 @@ static int dissect_afit_encap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		}
 
 	}
-	return tvb_captured_length(tvb);
+
 }
 
 void
@@ -103,26 +70,20 @@ proto_register_afit_encap (void)
 			 	0x0, NULL, HFILL
 			}
 		},
-
-		{ &hf_afit_zwave_channel_type,
-			{ "Channel CFG & Rate",
-				"afit_encap.channel_config", FT_UINT8, BASE_DEC,
-				VALS (afit_zwave_channel_type_names), 0x0, NULL, HFILL
+/*
+		{ &hf_sfd_timestamp_sec,
+			{ "Seconds portion of Timestamp when SFD is detected", "afit_encap.sfd_timestamp_sec",
+				 FT_UINT64, BASE_DEC, NULL,
+			 	0x0, NULL, HFILL
 			}
 		},
 
-		{ &hf_afit_zwave_preamble_count,
-			{  "Preamble Length",
-				"afit_encap.preamble_count", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
+		{ &hf_sfd_timestamp_usec,
+			{ "Microseconds portion Timestamp when SFD is detected", "afit_encap.sfd_timestamp_usec",
+				 FT_UINT64, BASE_DEC, NULL,
+			 	0x0, NULL, HFILL
 			}
-		},
-
-		{ &hf_afit_zwave_symbol_count,
-			{	"Symbol Count Index",
-				"afit_encap.symbol_count", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
-			}
-		}
-
+		}, */
 	};
 
 	static gint *ett[] = {
@@ -138,7 +99,8 @@ proto_register_afit_encap (void)
 	);
 
 	
-  	afit_encap_dissector_table = register_dissector_table("afit_encap.encap_type", "Temporary Encapsulation Type for ZWAVE dissector", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);	
+  	afit_encap_dissector_table = register_dissector_table("afit_encap.encap_type", "Temporary Encapsulation Type for ZWAVE dissector",
+                                                FT_UINT8, BASE_DEC);	
 	proto_register_field_array (proto_afit_encap, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }
@@ -149,7 +111,7 @@ proto_reg_handoff_afit_encap (void)
 	static dissector_handle_t afit_encap_handle;
  	
 	data_handle = find_dissector("data");
-    afit_encap_handle = create_dissector_handle (dissect_afit_encap, proto_afit_encap);
+	afit_encap_handle = create_dissector_handle (dissect_afit_encap, proto_afit_encap);
 	dissector_add_uint("udp.port", AFIT_ENCAP_UDP_PORT, afit_encap_handle);
 
 }
