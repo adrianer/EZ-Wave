@@ -1,5 +1,8 @@
 # EZ-Wave
-EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios and a modified form of the Scapyradio European Z-Wave sniffer.
+EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios. The tools depend heavily on a modified form of the Scapy-Radio Z-Wave gnuRadio transciever (https://bitbucket.org/cybertools/scapy-radio/overview). A special thanks goes out to the Scapy-Radio guys for providing this useful tool to the public, which also sports modules for Bluetooth and Zigbee for those interested in such things.
+
+# Notes
+* The transciever is harcoded for the US Z-Wave R2 band. To use in other regions, just modify zwave.grc as explained here: http://oldsmokingjoe.blogspot.sg/2016/04/z-wave-protocol-analysis-using-ez-wave.html. The howto article provides additional detail to setting up your own Z-Wave sniffer.
 
 ezstumbler: passive Z-Wave network discovery and active network enumeration
 
