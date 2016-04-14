@@ -1,5 +1,5 @@
 # EZ-Wave
-EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios.
+EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios and a modified form of the Scapyradio European Z-Wave sniffer.
 
 ezstumbler: passive Z-Wave network discovery and active network enumeration
 
