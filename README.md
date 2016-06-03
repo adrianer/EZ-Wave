@@ -49,7 +49,7 @@ cd $HOME/scapy-radio
 ./install.sh blocks
 ```
 
-Open [gnuradio prefix]/etc/gnuradio/conf.d in a text editor and append ":/usr/local/share/gnuradio/grc/blocks" to global_blocks_path
+Open [gnuradio prefix]/etc/gnuradio/conf.d/grc.conf in a text editor and append ":/usr/local/share/gnuradio/grc/blocks" to global_blocks_path
 
 ```
 ./install.sh grc
