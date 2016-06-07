@@ -29,7 +29,8 @@
 #include <gnuradio/block_detail.h>
 
 #define ZWAVE 0x01
-int PREAMBLE_SIZE = 10; // <<<< of preamble table size
+//define PREAMBLE_SIZE 25 // <<<< of preamble table size
+int PREAMBLE_SIZE=10
 
 namespace gr {
   namespace Zwave {
@@ -46,24 +47,26 @@ namespace gr {
       : gr::block("preamble",
         gr::io_signature::make(0, 0, 0),
         gr::io_signature::make(0, 0, 0))
-    {
+{
+//    int jojo=0;
+//   for(;jojo<PREAMBLE_SIZE;jojo++) preamble[jojo]=0x55;
+//    preamble[jojo]=0xF0;
 
-        set_preamble(preamble_length);
+		set_preamble(preamble_length);
 
-        //Queue stuff
-        message_port_register_out(pmt::mp("out"));
-        message_port_register_in(pmt::mp("in"));
-        set_msg_handler(pmt::mp("in"), boost::bind(&preamble_impl::general_work, this, _1));
+    //Queue stuff
+    message_port_register_out(pmt::mp("out"));
+    message_port_register_in(pmt::mp("in"));
+    set_msg_handler(pmt::mp("in"), boost::bind(&preamble_impl::general_work, this, _1));
 
-    }
+}
 
     //Destructor
     preamble_impl::~preamble_impl()
     {
     }
 
-
-    void preamble_impl::set_preamble(int preamble_length){
+void preamble_impl::set_preamble(int preamble_length){
         if (preamble_length % 8 > 0){
             PREAMBLE_SIZE = int(preamble_length / 8) + 1;
         }
@@ -94,39 +97,57 @@ namespace gr {
         preamble[jojo]=0xF0;
     }
 
-
     // """main""" function
-    void preamble_impl::general_work (pmt::pmt_t msg){
+void preamble_impl::general_work (pmt::pmt_t msg){
 
-        if(pmt::is_eof_object(msg)) {
-            message_port_pub(pmt::mp("out"), pmt::PMT_EOF);
-            detail().get()->set_done(true);
-            return;
-        }
+	if(pmt::is_eof_object(msg)) {
+		message_port_pub(pmt::mp("out"), pmt::PMT_EOF);
+		detail().get()->set_done(true);
+		return;
+	}
 
-        assert(pmt::is_pair(msg));
-        pmt::pmt_t blob = pmt::cdr(msg);
+	assert(pmt::is_pair(msg));
+	pmt::pmt_t blob = pmt::cdr(msg);
+	beam beamFrame = beam();
 
-        size_t data_len = pmt::blob_length(blob);
-        assert(data_len);
-        assert(data_len < 256 - 1);
-        //Check if Zwave frame
-        char temp[256];
-        std::memcpy(temp, pmt::blob_data(blob), data_len);
-        if(temp[0] == ZWAVE){
-            std::memcpy(preamble + 1 + PREAMBLE_SIZE, pmt::blob_data(blob)+8, data_len-8); // blob_data+1 to remove the 2 byte header
+	size_t data_len = pmt::blob_length(blob);
+	uint8_t numBeams;
 
-            //2 byte added at the end of the packet
-            preamble[data_len+1+PREAMBLE_SIZE-8] = 0xAA;
+	assert(data_len);
+	assert(data_len < 256 - 1);
+	//Check if Zwave frame
+    char temp[256];
+    std::memcpy(temp, pmt::blob_data(blob), data_len);
+    if(temp[0] == ZWAVE)
+			{
+				numBeams = temp[1];
+				std::cout << "Generating " << (uint16_t)numBeams << " beams\n";
 
-            //for(int toto=0;toto< (PREAMBLE_SIZE+data_len-8+2);toto++)  preamble[toto] ^=  0xff;
+				if ( (uint16_t)numBeams > 0) 
+					{
+						beamFrame.nodeid = temp[2];
+						std::cout << "Attempting to wakeup " << (uint16_t)temp[2] << std::endl;
+						pmt::pmt_t packet = pmt::make_blob (&beamFrame, sizeof(beam));
 
-            pmt::pmt_t packet = pmt::make_blob(preamble, data_len-8 + 1+1+PREAMBLE_SIZE); //padding of 1 octets
+						for (uint16_t i=0;i<(uint16_t)numBeams;i++) // Send beams
+							{
+								message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, packet));
+							}
+					}
+		
+				std::memcpy(preamble + 1 + PREAMBLE_SIZE, pmt::blob_data(blob)+8, data_len-8); // blob_data+1 to remove the 2 byte header
 
-            message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, packet));
-        }
-    }
+	    	//2 byte added at the end of the packet
+	    	preamble[data_len+1+PREAMBLE_SIZE-8] = 0xAA;
+
+
+//    	for(int toto=0;toto< (PREAMBLE_SIZE+data_len-8+2);toto++)  preamble[toto] ^=  0xff;
+
+				pmt::pmt_t packet = pmt::make_blob(preamble, data_len-8 + 1+1+PREAMBLE_SIZE); //padding of 1 octets
+	
+				message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, packet));
+		}
+ }
 
   } /* namespace Zwave */
 } /* namespace gr */
-
