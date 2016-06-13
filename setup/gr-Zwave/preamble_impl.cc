@@ -30,7 +30,7 @@
 
 #define ZWAVE 0x01
 //define PREAMBLE_SIZE 25 // <<<< of preamble table size
-int PREAMBLE_SIZE=10
+int PREAMBLE_SIZE=10;
 
 namespace gr {
   namespace Zwave {
