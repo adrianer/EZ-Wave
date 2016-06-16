@@ -1,4 +1,7 @@
 # Updates / News
+06-16-2016: 
+* preamble\_impl.cc has been modified to allow up to 200 symbol length preambles. Previously it only had enough space for 80, which, for some reason, caused underflow events when transmitting on Ettus B210s. If you are using an Ettus B210, set your preamble\_length variable to 200.
+*  TODO: Need to test that this has not broken HackRF support.
 
 06-07-2016: We have added the ability to send and receive beams. Beams are used to wake-up battery powered devices.
 * Receiving Beams: packet_sink_impl.cc now extracts beam frames. They show up in your Wireshark captures too!
