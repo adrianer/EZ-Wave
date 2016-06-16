@@ -30,7 +30,7 @@
 
 #define ZWAVE 0x01
 //define PREAMBLE_SIZE 25 // <<<< of preamble table size
-int PREAMBLE_SIZE=10;
+int PREAMBLE_SIZE=25;
 
 namespace gr {
   namespace Zwave {
@@ -94,7 +94,9 @@ void preamble_impl::set_preamble(int preamble_length){
                 preamble[jojo] = 0x55;
             }
         }
-        preamble[jojo]=0xF0;
+
+        //preamble[jojo]=0xF0;
+				preamble[PREAMBLE_SIZE]=0xF0;
     }
 
     // """main""" function
@@ -114,19 +116,38 @@ void preamble_impl::general_work (pmt::pmt_t msg){
 	uint8_t numBeams;
 
 	assert(data_len);
-	assert(data_len < 256 - 1);
+	//std::cout << "data_len is > 0\n";
+	assert(data_len < (256 - 1 - 1 - PREAMBLE_SIZE)); //CWB: Need to account for preamble size, SoF, and 1-byte padding, else overflow
+	//std::cout << "data_len is < 256\n";
+
 	//Check if Zwave frame
     char temp[256];
+		char *rxZwaveFrame;
+		char *rxScapyFrame;
+		char *pkZwaveFrame = &preamble[PREAMBLE_SIZE+1];
+		const size_t scapyFrameLen = 8;
+		size_t ZwaveFrameLen;
+
     std::memcpy(temp, pmt::blob_data(blob), data_len);
-    if(temp[0] == ZWAVE)
+		rxScapyFrame = temp;
+		rxZwaveFrame = &temp[scapyFrameLen];
+		ZwaveFrameLen = data_len - scapyFrameLen;
+
+    if(rxScapyFrame[0] == ZWAVE)
 			{
-				numBeams = temp[1];
-				std::cout << "Generating " << (uint16_t)numBeams << " beams\n";
+				//std::cout << "Is Zwave frame\n";
+
+				numBeams = rxScapyFrame[1];
+				//std::cout << "Generating " << (uint16_t)numBeams << " beams\n";
 
 				if ( (uint16_t)numBeams > 0) 
 					{
-						beamFrame.nodeid = temp[2];
-						std::cout << "Attempting to wakeup " << (uint16_t)temp[2] << std::endl;
+						beamFrame.nodeid = rxScapyFrame[2];
+
+						// CWB: After playing with the padding for the singlecast frame, I realized that it is needed to avoid checksum errors. We may
+						// need to consider if we should pad each beam frame as well. Currently the last byte is the target to wakeup.
+						// TODO: Observe if the beam's last byte is getting mangled, necessitating a padding byte.
+						std::cout << "Attempting to wakeup " << (uint16_t)rxScapyFrame[2] << " with " << (uint16_t)numBeams << " beam frames." << std::endl;
 						pmt::pmt_t packet = pmt::make_blob (&beamFrame, sizeof(beam));
 
 						for (uint16_t i=0;i<(uint16_t)numBeams;i++) // Send beams
@@ -135,16 +156,29 @@ void preamble_impl::general_work (pmt::pmt_t msg){
 							}
 					}
 		
-				std::memcpy(preamble + 1 + PREAMBLE_SIZE, pmt::blob_data(blob)+8, data_len-8); // blob_data+1 to remove the 2 byte header
+				//std::cout << "Copying rcved frame to preamble buffer\n";
+		
+				// PREAMBLE_SIZE preamble + 1 byte SOF. Also remove scapyhdr from tmp
+				std::memcpy (pkZwaveFrame, rxZwaveFrame, ZwaveFrameLen);
 
-	    	//2 byte added at the end of the packet
-	    	preamble[data_len+1+PREAMBLE_SIZE-8] = 0xAA;
+				//std::memcpy(preamble + 1 + PREAMBLE_SIZE, pmt::blob_data(blob)+8, data_len-8); // blob_data+1 to remove the 2 byte header
 
+				// CWB: It appears as though the last byte of the frame gets slightly mangled. To avoid large checksum errors, the frame is padded by at least one byte
+	    	//preamble[data_len+1+PREAMBLE_SIZE-8] = 0xAA;
+				preamble[PREAMBLE_SIZE + 1 + ZwaveFrameLen] = 0xAA;
 
 //    	for(int toto=0;toto< (PREAMBLE_SIZE+data_len-8+2);toto++)  preamble[toto] ^=  0xff;
 
-				pmt::pmt_t packet = pmt::make_blob(preamble, data_len-8 + 1+1+PREAMBLE_SIZE); //padding of 1 octets
-	
+				//CWB: does pmt::make_blob use static memory or heap? Do we free it or does the sdr sink do it?
+				//pmt::pmt_t packet = pmt::make_blob(preamble, data_len-8 + 1+1+PREAMBLE_SIZE); //padding of 1 octets
+				//std::cout << "Sending PHY Frame: " << std::hex;
+				//for (int i=0;i<(PREAMBLE_SIZE+1+ZwaveFrameLen);i++)
+				//	std::cout << " " << std::setfill('0') << std::setw(2) << (uint16_t)preamble[i];
+			
+				std::cout << std::endl;
+				pmt::pmt_t packet = pmt::make_blob (preamble, PREAMBLE_SIZE + 1 + ZwaveFrameLen + 1);
+
+				//std::cout << "Sending out port\n";
 				message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, packet));
 		}
  }
