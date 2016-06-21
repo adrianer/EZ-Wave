@@ -1,5 +1,6 @@
 # Updates / News
 06-16-2016: 
+* Added ZWave\_B210.grc to the repository because I was having trouble getting ZWave.grc to work with Ettus B210s.
 * preamble\_impl.cc has been modified to allow up to 200 symbol length preambles. Previously it only had enough space for 80, which, for some reason, caused underflow events when transmitting on Ettus B210s. If you are using an Ettus B210, set your preamble\_length variable to 200 (after pulling the latest version).
 *  TODO: Need to test that this has not broken HackRF support.
 
@@ -10,7 +11,7 @@
 * Wireshark note: If beams clutter up your captures, filter them out with !zwave_beam in filter textbox.
 
 # EZ-Wave
-EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios. The tools depend heavily on a modified form of the Scapy-Radio Z-Wave gnuRadio transciever (https://bitbucket.org/cybertools/scapy-radio/overview). A special thanks goes out to the Scapy-Radio guys for providing this useful tool to the public, which also sports modules for Bluetooth and Zigbee for those interested in such things.
+EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios. The tools depend heavily on a modified form of the Scapy-Radio Z-Wave gnuRadio transciever (https://bitbucket.org/cybertools/scapy-radio/overview). A special thanks goes out to the Scapy-Radio guys for providing this useful tool to the public, which also sports modules for Bluetooth and ZigBee for those interested in such things.
 
 # Notes
 * The transciever is harcoded for the US Z-Wave R2 band. To use in other regions, just modify zwave.grc as explained here: http://oldsmokingjoe.blogspot.sg/2016/04/z-wave-protocol-analysis-using-ez-wave.html. The howto article provides additional detail to setting up your own Z-Wave sniffer.
