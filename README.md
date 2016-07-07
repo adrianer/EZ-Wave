@@ -35,7 +35,7 @@ Python 2.7
 
 GNU Radio 3.7+ (recommend Pybombs: https://gnuradio.org/redmine/projects/pybombs/wiki/QuickStart)
 
-Wireshark 1.12+ (https://code.wireshark.org/review/wireshark)
+Wireshark 1.12 to 2.0.1 (https://code.wireshark.org/review/wireshark)
 
 Mercurial (sudo apt-get install mercurial -y)
 
