@@ -50,9 +50,9 @@ static int hf_zwave_mac_checksum = -1;
 //const char * hf_zwave_mac_info_fmt = " %s %u [0x%x %u->%u|%s]";
 
 static gint ett_zwave_mac = -1;
-static dissector_handle_t zwave_app_handle;
-static dissector_handle_t zwave_net_handle;
-static dissector_handle_t data_handle;
+static dissector_handle_t zwave_app_handle = NULL;
+static dissector_handle_t zwave_net_handle = NULL;
+static dissector_handle_t data_handle = NULL;
 
 
 //static dissector_table_t zwave_mac_dissector_table;
@@ -118,15 +118,15 @@ dissect_zwave_mac (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint homeid = -1;
 	proto_item* ti = NULL;
 
-	if(data_handle <= 0){
+	if(data_handle == NULL){
 		data_handle = find_dissector("data");
 	}
 
-	if(zwave_net_handle <= 0){	
+	if(zwave_net_handle == NULL){	
 		zwave_net_handle = find_dissector("zwave_net");
 	}	
 
-	if(zwave_app_handle <= 0){
+	if(zwave_app_handle == NULL){
 		//zwave_app_handle = find_dissector("zwave_app");
 	}
 
@@ -213,9 +213,9 @@ dissect_zwave_mac (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}else if(routed > 0){
 		call_dissector(zwave_net_handle, next_tvb, pinfo, tree);
 	}else{
-		//call_dissector(zwave_app_handle, next_tvb, pinfo, tree);
+		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
-	call_dissector(data_handle, next_tvb, pinfo, tree);
+	//call_dissector(data_handle, next_tvb, pinfo, tree);
 	
 }
 

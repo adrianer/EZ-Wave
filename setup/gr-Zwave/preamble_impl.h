@@ -27,24 +27,44 @@
 namespace gr {
   namespace Zwave {
 
+struct beam{
+	unsigned char preamble[20];
+	unsigned char sof;
+	unsigned char beam_hdr;
+	unsigned char nodeid;
+
+	beam(char node){
+		std::memset (this->preamble, 0x55, 20);
+		sof = 0xF0;		
+		beam_hdr = 0x55;
+		nodeid = node;
+	}
+
+	beam(){
+		std::memset (this->preamble, 0x55, 20);
+		sof = 0xF0;
+		beam_hdr = 0x55;
+		nodeid = 0xFF; //Broadcast
+	}
+}__attribute__((packed));
+
     class preamble_impl : public preamble
     {
      private:
       // Nothing to declare in this block.
-        //enought for a frame
+        //enought for a trame
         char preamble[256];
 
      public:
-      preamble_impl(int preamble_length);
+      preamble_impl(int preamble_length); // Added param for EZ-Wave
       ~preamble_impl();
 
-      void set_preamble(int  preamble_length);
 
       void general_work(pmt::pmt_t msg);
+			void set_preamble(int  preamble_length); // For EZ-Wave
     };
 
   } // namespace Zwave
 } // namespace gr
 
 #endif /* INCLUDED_ZWAVE_PREAMBLE_IMPL_H */
-

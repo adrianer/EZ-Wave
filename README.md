@@ -1,5 +1,17 @@
+# Updates / News
+06-16-2016: 
+* Added ZWave\_B210.grc to the repository because I was having trouble getting ZWave.grc to work with Ettus B210s.
+* preamble\_impl.cc has been modified to allow up to 200 symbol length preambles. Previously it only had enough space for 80, which, for some reason, caused underflow events when transmitting on Ettus B210s. If you are using an Ettus B210, set your preamble\_length variable to 200 (after pulling the latest version).
+*  TODO: Need to test that this has not broken HackRF support.
+
+06-07-2016: We have added the ability to send and receive beams. Beams are used to wake-up battery powered devices.
+* Receiving Beams: packet_sink_impl.cc now extracts beam frames. They show up in your Wireshark captures too!
+* Sending Beams: preamble_impl.cc is modified to send an arbitrary number of continuous beam frames to wake up a target. This is specified by utlizing the 8 byte header appended to a Z-Wave frame sent to the gnuradio Z-Wave transmitter. Byte 0 is still used to identify the frame as a Z-Wave encapsulation frame. Byte 1 indicates the number of beam frames sent before the encapsulated frame is sent. Byte 2 is used to specify the target NodeID to wake-up. The remaining bytes are still 0x00. 
+* Regarding the number of beam frames, we use 250 for long continuous beams and 75 for short continuous beams. 
+* Wireshark note: If beams clutter up your captures, filter them out with !zwave_beam in filter textbox.
+
 # EZ-Wave
-EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios. The tools depend heavily on a modified form of the Scapy-Radio Z-Wave gnuRadio transciever (https://bitbucket.org/cybertools/scapy-radio/overview). A special thanks goes out to the Scapy-Radio guys for providing this useful tool to the public, which also sports modules for Bluetooth and Zigbee for those interested in such things.
+EZ-Wave: Tools for Evaluating and Exploiting Z-Wave Networks using Software-Defined Radios. The tools depend heavily on a modified form of the Scapy-Radio Z-Wave gnuRadio transciever (https://bitbucket.org/cybertools/scapy-radio/overview). A special thanks goes out to the Scapy-Radio guys for providing this useful tool to the public, which also sports modules for Bluetooth and ZigBee for those interested in such things.
 
 # Notes
 * The transciever is harcoded for the US Z-Wave R2 band. To use in other regions, just modify zwave.grc as explained here: http://oldsmokingjoe.blogspot.sg/2016/04/z-wave-protocol-analysis-using-ez-wave.html. The howto article provides additional detail to setting up your own Z-Wave sniffer.
@@ -23,7 +35,7 @@ Python 2.7
 
 GNU Radio 3.7+ (recommend Pybombs: https://gnuradio.org/redmine/projects/pybombs/wiki/QuickStart)
 
-Wireshark 1.12+ (https://code.wireshark.org/review/wireshark)
+Wireshark 1.12 to 2.0.1 (https://code.wireshark.org/review/wireshark)
 
 Mercurial (sudo apt-get install mercurial -y)
 
@@ -114,3 +126,4 @@ ezfingerprint.py homeid nodeid
 ```
 ezfingerprint.py 0x1a2b3c4d 20
 ```
+

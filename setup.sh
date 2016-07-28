@@ -5,6 +5,7 @@ scapy_radio_clone(){
 	hg clone https://bitbucket.org/cybertools/scapy-radio
 	mv scapy-radio/ ${HOME}/
 	cp setup/gr-Zwave/preamble_impl* ${HOME}/scapy-radio/gnuradio/gr-Zwave/lib/
+	cp setup/gr-Zwave/packet_sink_impl* ${HOME}/scapy-radio/gnuradio/gr-Zwave/lib/
 	cp setup/gr-Zwave/preamble.h ${HOME}/scapy-radio/gnuradio/gr-Zwave/include/Zwave/
 	cp setup/gr-Zwave/Zwave_preamble.xml ${HOME}/scapy-radio/gnuradio/gr-Zwave/grc/
 	cp setup/install.sh ${HOME}/scapy-radio/
